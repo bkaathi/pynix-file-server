@@ -1,0 +1,16 @@
+dist: trusty
+sudo: required
+script:
+- curl https://nixos.org/nix/install | sh
+- nix-shell test.nix --run "python src/tests"
+deploy:
+  overwrite: true
+  provider: releases
+  skip_cleanup: true
+  on:
+    tags: true
+    all_branches: true
+    repo: lpsandaruwan/pynix-file-server
+env:
+  global:
+    secure: rNBSWkkAQRnvw/MOLH9VS8hNZzAlG97pO3HQBOoZ5dGNeqMFtN9S3a2cDEZj4BuB2PdJb5y5IcRxhaWWnOLSc2UvlZ+sgmGmrOByb8aIs9va1xuzQ7v5AaDVc320Jay/G867Rqq8Zch/pdxMnmB3Qqx22OKBzsqiIbucQr62sCGhjNbN6m2KtRmpODlmxeBkxXzeCMwwJsBQjdzqriVhFsdu+EX75av8OK2nyD+MNox34q9VVx6wdpX4UALXUvrgcDnw4gyJGHRSqbKuAnLe/wZu77fMaPd2yCRlSr1YCNHohHuvCqOPqUQIMjYdcZkZ5QLi1dWVriBV0V3WIRgu4n38YITesCSNwx9YB/zjhDNkVV2AYX/WXCP6j/oTsJ/KWJEp1lIH37AoMzX7MkZWx7jcthejw54O/Msx5WpAiZkefdiON5XukfPMErCt1OIeZ2W1Yk9cVhQaWEmOgfgd7NMgoGINOw3D1+4nsyMpJ+pYNwddXWaznmlEfVdQ/2qscfbbhWE60TYPhRpO8beaAkvP1fU63XaC5vaCT9yMcj08e5Iez5wT6Eezm/BZe6KM3cIyg7OcpUiP6o038ZrVQO6dlWHqBFdks5b8X8fNe3iNxsYUgvkbGMC1aQoRcAeXtVG8urXqkmtxH3ycfhoVSCJ8BlqSMX8tnhgnf8/KAD4=

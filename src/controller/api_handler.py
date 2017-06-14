@@ -14,22 +14,25 @@
 #   /files/:file_name   DELETE  delete file by file name
 #   /files              POST    upload file
 #
-# Copyright (c) 2017 Lahiru Pathirage
+# Copyright (c) 2017 Lahiru Pathirage <http://lahiru.site>
 
 
-# Import python system packages
+# Python system packages
 import os
 
-# Import third party packages
+# Third party packages
 from functools import wraps
 from flask import Blueprint, jsonify, Response, request, send_from_directory
 from werkzeug.utils import secure_filename
 
-# Import settings data from main
-from main import settings_data
+# Application level modules
+from utility import YamlReader
 
 
-# Initialize Flask blueprint
+# Read settings from config file
+settings_data = YamlReader("config.yml").get_data()
+
+# Initiate Flask blueprint
 api_handler = Blueprint("api_handler", __name__)
 
 
@@ -44,7 +47,7 @@ def check_auth(username, password):
 def authenticate():
     """Sends a 401 response that enables basic auth"""
     return Response(
-        "Authentication failure",
+        "Authentication failure\n",
         401,
         {'WWW-Authenticate': 'Basic realm="Login Required"'}
     )
@@ -68,7 +71,7 @@ def requires_auth(f):
 def get_server_status():
     """Returns a string if server is up and running"""
     return Response(
-        "Server is functional",
+        "Server is functional\n",
         200,
         {'ContentType': 'application/json'}
     )
@@ -78,14 +81,23 @@ def get_server_status():
 @requires_auth
 def get_files_list():
     """Returns a list of files in the server"""
-    return jsonify(
-        os.listdir(settings_data["file_directory"]),
-    )
+    try:
+        return jsonify(
+            os.listdir(settings_data["file_directory"]),
+        )
+
+    except:
+        return Response(
+            "Internal server error\n",
+            500,
+            {'ContentType': 'application/json'}
+        )
 
 
 @api_handler.route("/files/<name>", methods=["GET"])
 @requires_auth
 def get_file_by_file_name(name):
+    """Check for file in resources directory and return if"""
     if name in os.listdir(settings_data["file_directory"]):
         return send_from_directory(
             directory=os.path.abspath(settings_data["file_directory"]),
@@ -94,7 +106,7 @@ def get_file_by_file_name(name):
 
     else:
         return Response(
-            name + " not found in the server",
+            name + " not found in the server\n",
             400,
             {'ContentType': 'application/json'}
         )
@@ -103,21 +115,21 @@ def get_file_by_file_name(name):
 @api_handler.route("/files/<name>", methods=["DELETE"])
 @requires_auth
 def remove_file_by_file_name(name):
-    """Find and delete file by file name"""
+    """Find file in resources directory and delete if"""
     if name in os.listdir(settings_data["file_directory"]):
         os.remove(
             settings_data["file_directory"] + "/" + name
         )
 
         return Response(
-            name + " deleted successfully",
+            name + " deleted successfully\n",
             200,
             {'ContentType': 'application/json'}
         )
 
     else:
         return Response(
-            name + " not found in the server",
+            name + " not found in the server\n",
             400,
             {'ContentType': 'application/json'}
         )
@@ -126,7 +138,7 @@ def remove_file_by_file_name(name):
 @api_handler.route("/files", methods=["POST"])
 @requires_auth
 def save_new_file():
-    """Handle uploaded files"""
+    """Handle file uploading, save files in resources directory"""
     file = request.files["file"]
 
     if file:
@@ -136,14 +148,14 @@ def save_new_file():
         )
 
         return Response(
-            file_name + " uploaded successfully",
+            file_name + " uploaded successfully\n",
             200,
             {'ContentType': 'application/json'}
         )
 
     else:
         return Response(
-            "Invalid file type",
+            "Invalid file type\n",
             400,
             {'ContentType': 'application/json'}
         )
