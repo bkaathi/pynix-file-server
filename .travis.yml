@@ -2,6 +2,7 @@ dist: trusty
 sudo: required
 script:
 - curl https://nixos.org/nix/install | sh
+- . /home/travis/.nix-profile/etc/profile.d/nix.sh
 - nix-shell test.nix --run "python src/tests"
 deploy:
   overwrite: true
